@@ -12,8 +12,22 @@
 
 #include "timer2.h"
 
-// Set up timers after a reset
-void timer2InitialConfig(void) {
+void TIM2_IRQHandler(void) {
+    uint16_t which_interrupt = TIM2->SR;
+    
+    // Input channel 2 capture interrupt
+    if ((which_interrupt & TIM_SR_CC1IF) == TIM_SR_CC1IF) {
+        // Read the latched time from the capture event
+        // this also clears the capture flag in TIM2->SR
+        current_rising_edge_count = TIM2->CCR2;
+        // Normalize and kick motor PWM logic here
+    }
+}
+
+// Configure for PWM Input Mode
+// See 27.3.6 - PWM Input Mode of the reference manual
+void timer2PWMInputModeInit() {
+    
     // Enable clock of timer 2
     RCC->APB1ENR1 |= RCC_APB1ENR1_TIM2EN;
     
@@ -24,69 +38,38 @@ void timer2InitialConfig(void) {
     // 80 MHz / 80 = 1 MHz -> 1 us
     TIM2->PSC = 79;
     
-    // Configure active input for  Capture/Compare 
-    // Configure CC1 as an input and map IC1 to TI1
-    TIM2->CCMR1 &= ~TIM_CCMR1_CC1S;
-    TIM2->CCMR1 |= TIM_CCMR1_CC1S_0; 
+    // Select the active input for TIM2_CCR1 
+    // Write the CC1S bits (1 downto 0) in TIM2_CCMR1 register
+    // This selects input TI1 - TIM2_CH1 for input capture
+    TIM2->CCMR1 |= ~TIM_CCMR1_CC1S;
     
-    //TIM2->EGR |= TIM_EGR_UG; // Re-initalize the counter and generate an update of the registers
+    // Select the active polarity for the edge detector
+    // Write the CC1P to '0' and the CC1NP to '0' (active on rising edge)
+    TIM2->CCER &= ~TIM_CCER_CC1P;  
+    TIM2->CCER &= ~TIM_CCER_CC1NP;
     
-    // Select rising edge for capture
-    TIM2->CCER &= ~(TIM_CCER_CC1NP | TIM_CCER_CC1P);
-}
-// Set up timers prior to POST
-void timer2PostInit(void) {
-    // Set Prescaler To count at 20 KHz -> 80 MHz / 4000 = 20 kHz -> 50 us
-    TIM2->PSC = 3999;
+    // Select the active input for TIM2_CCR2 
+    // Write the CC2S bits to 10 in the TIM2_CCMR1 register
+    TIM2->CCMR1 |= TIM_CCMR1_CC2S;
     
-    // Set Auto Reload Register to 2000 to get an overflow interrupt to end POST after 100 ms -> 2000 * 50us = 100 ms
-    TIM2->ARR = 2000;
-    TIM2->EGR |= TIM_EGR_UG;
+    // Select the active polarity for edge detection 
+    // Write the CC2P to '1' and the CC2NP to '0 (active on the falling edge)
+    TIM2->CCER |= TIM_CCER_CC2P;
+    TIM2->CCER &= ~TIM_CCER_CC2NP;
     
-    // Unmask TIM2 Interrupts
-    // UIF - Overflow occurs -> POST over
-    // Channel 1 Input Capture -> rising edge occurred
-    TIM2->DIER |= (TIM_DIER_CC1IE | TIM_DIER_UIE);
+    // Select the valid trigger input 
+    // Write the TS bits to 100 in the TIM2_SMCR register to trigger of the TI1 edge detector (rising edge of PA0)
+    TIM2->SMCR |= TIM_SMCR_ETF_2;
     
-    // Enable capture on Channel 1
-    TIM2->CCER |= TIM_CCER_CC1E;
+    // Configure for slave mode controller in reset mode when trigger condition occurrs -> SMS bits to 100
+    TIM2->SMCR |= TIM_SMCR_SMS_2;
     
-    // Enable TIM2 -> Important to do this last otherwise we will get a UIF in the TIM2->SR 
-    // which we will incorrectly process as an overflow event 
-    TIM2->CR1 |= TIM_CR1_CEN;    
+    // Enable the captures
+    // Write CC1E and CC2E to '1' in TIM2_CCER
+    TIM2->CCER |= (TIM_CCER_CC1E | TIM_CCER_CC2E);
     
-}
-// set up timers prior to Measurements
-void timer2MeasurementInit(void) {
-    // Set the Auto Reload Register back to full scale to avoid overflows
-    TIM2->ARR = 0xffff;
+    // Enable interrupts for input capture compare 2
+    TIM2->DIER |= TIM_DIER_CC2IE;
     
-    // Set Prescaler to count at 1 MHz -> 80 MHz / 80 = 1 MHz -> 1us
-    TIM2->PSC = 79;
-    TIM2->EGR |= TIM_EGR_UG;
-    
-    // Set UDIS bit to disable UIF flag
-    TIM2->CR1 |= TIM_CR1_UDIS;
-    
-    // Enable TIM2_CH1 capture interrupt
-    TIM2->DIER = TIM_DIER_CC1IE;
-    
-    // Enable capture on channel 1
-    TIM2->CCER |= TIM_CCER_CC1E;  
-    
-    // Enable TIM2
-    TIM2->CR1 |= TIM_CR1_CEN; 
 }
 
-// Disable timer interrupts and capture
-void timer2DisableInterrupts(void) {
-    // Disable capture interrupts
-    TIM2->DIER &= ~TIM_DIER_CC1IE;
-    
-    // Disable TIM2
-    TIM2->CR1 &= ~TIM_CR1_CEN; 
-   
-   // Disable channel 1 capture                    
-    TIM2->CCER &= ~TIM_CCER_CC1E;
-    TIM2->SR &= ~TIM_SR_UIF; // Clear overflow interrupt
-}
