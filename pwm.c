@@ -69,7 +69,7 @@ void pwmInit() {
 // Returns a PWM duty cycle value to command corresponding to a normalized
 // float between 0 and 1
 uint16_t setNormalizedPWMDuty(float norm_pos) {
-    return uint16_t(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
+    return (uint16_t)(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
 }
 
 void setPWMDuty( unsigned int channel_num, uint16_t duty_cycle) {

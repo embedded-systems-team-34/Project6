@@ -19,7 +19,6 @@
 #include <math.h>
 
 #include "timer2.h"
-#include "GPIOA.h"
 
 #define debug (0)
 
@@ -29,9 +28,6 @@
 ******************************************************************************/
 
 int main(void){
-    int n;
-    unsigned int wasPost;
-    char rxbyte;
    
     System_Clock_Init();
 
@@ -40,7 +36,6 @@ int main(void){
 #endif
 
     UART2_Init();
-    gpioAInit();
     
     // Configure Timer 2 Channel 1 For Input Capture
     timer2PWMInputModeInit();

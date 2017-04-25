@@ -13,8 +13,8 @@
 #include "timer2.h"
 
 // Maximum PWM On Time In us
-uint16_t MAX_PWMTIME (1000)
-uint16_t MIN_PWMTIME (0)
+#define MAX_PWMTIME (1000)
+#define MIN_PWMTIME (0)
 
 void TIM2_IRQHandler(void) {
     uint16_t which_interrupt = TIM2->SR;
@@ -23,7 +23,7 @@ void TIM2_IRQHandler(void) {
     if ((which_interrupt & TIM_SR_CC1IF) == TIM_SR_CC1IF) {
         // Read the latched time from the capture event
         // this also clears the capture flag in TIM2->SR
-        current_rising_edge_count = TIM2->CCR2;
+        //current_rising_edge_count = TIM2->CCR2;
         // Normalize and kick motor PWM logic here
         // TIM2->CCR2 will contain pulse duration in us here!!!
     }
@@ -34,7 +34,7 @@ float normalizePWMTime(uint16_t duty_time) {
     if (duty_time >= MAX_PWMTIME) {
         return 1.0;
     } else {
-        return float(duty_time-MIN_PWMTIME) / float(MAX_PWMTIME - MIN_PWMTIME);
+        return (float)(duty_time-MIN_PWMTIME) / (float)(MAX_PWMTIME - MIN_PWMTIME);
     }
 }
 
