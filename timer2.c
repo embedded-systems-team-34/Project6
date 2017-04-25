@@ -12,6 +12,8 @@
 
 #include "timer2.h"
 
+uint16_t MAX_PWMTIME
+
 void TIM2_IRQHandler(void) {
     uint16_t which_interrupt = TIM2->SR;
     
@@ -21,6 +23,7 @@ void TIM2_IRQHandler(void) {
         // this also clears the capture flag in TIM2->SR
         current_rising_edge_count = TIM2->CCR2;
         // Normalize and kick motor PWM logic here
+        // TIM2->CCR2 will contain pulse duration in us here!!!
     }
 }
 
