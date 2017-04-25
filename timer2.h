@@ -18,5 +18,6 @@
 // Function Prototypes
 // Configure for PWM Input Mode
 void timer2PWMInputModeInit(void);
+float normalizePWMTime(uint16_t duty_time);
 
 #endif

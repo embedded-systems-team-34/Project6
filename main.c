@@ -47,6 +47,8 @@ int main(void){
      
     
     // Enable the interrupt handler
-    NVIC_EnableIRQ(TIM2_IRQn);     
+    NVIC_EnableIRQ(TIM2_IRQn);  
+
+    while(1);
     
 }

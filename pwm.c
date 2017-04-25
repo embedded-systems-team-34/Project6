@@ -13,6 +13,10 @@
 
 #include "stm32l476xx.h"
 
+#define MOTOR_MINIMUM_POS (490)
+#define MOTOR_MAXIMUM_POS (1969)
+#define MOTOR_NUM_STEPS (MOTOR_MAXIMUM_POS - MOTOR_MINIMUM_POS)
+
 void setupPWMAlternateFunction() {
     // Initialize PWM for channels 1 and two
     // Configure PA0 for alternate function
@@ -60,6 +64,12 @@ void pwmInit() {
     TIM5->CCER |= 1;
     TIM5->CCER |= 0x10;
     TIM5->CR1 |= TIM_CR1_CEN;
+}
+
+// Returns a PWM duty cycle value to command corresponding to a normalized
+// float between 0 and 1
+uint16_t setNormalizedPWMDuty(float norm_pos) {
+    return uint16_t(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
 }
 
 void setPWMDuty( unsigned int channel_num, uint16_t duty_cycle) {
