@@ -8,9 +8,17 @@
 
 #define QNX_BASE_ADDRESS (0x280)
 
+#define ADC_MAX (16666) // 5V * 305 uV/bit (resolution)
+#define ADC_MIN (-16666)
+
+float normalizeADCVal(int adcVal) {
+	return (float)(adcVal - ADC_MIN)/(float)(ADC_MAX-ADC_MIN);
+}
+
 int main(int argc, char *argv[]) {
 
-	unsigned int lsb, msb;
+	int16_t lsb, msb;
+	int16_t adcVal;
 
 	printf("Welcome to the hello QNX Momentics IDE\n");
 
@@ -57,10 +65,10 @@ int main(int argc, char *argv[]) {
 	msb = in8(QNX_BASE_ADDRESS+1);
 	printf("ADC reading 0x%x\n", lsb);
 	printf("ADC reading 0x%x\n", msb);
-
-
-
-
+	adcVal = lsb | (msb << 8);
+	printf("Reading: %d\n", adcVal);
+	printf("Voltage: %f\n", adcVal * 0.0003);
+	printf("Norm val %f\n", normalizeADCVal(adcVal));
 
 	return EXIT_SUCCESS;
 }
