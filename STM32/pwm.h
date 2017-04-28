@@ -16,7 +16,8 @@
 
 // Function Prototypes
 void pwmInit(void);
-void setPWMDuty( unsigned int channel_num, uint16_t duty_cycle);
+void setPWMDuty(uint16_t duty_cycle);
 void setupPWMAlternateFunction(void);
+void setNormalizedPWMDuty(float norm_pos);
 
 #endif

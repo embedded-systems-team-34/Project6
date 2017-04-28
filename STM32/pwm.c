@@ -12,9 +12,10 @@
 ******************************************************************************/
 
 #include "stm32l476xx.h"
+#include "pwm.h"
 
-#define MOTOR_MINIMUM_POS (490)
-#define MOTOR_MAXIMUM_POS (1969)
+#define MOTOR_MINIMUM_POS (390)//(490)
+#define MOTOR_MAXIMUM_POS (1969)//(1969)
 #define MOTOR_NUM_STEPS (MOTOR_MAXIMUM_POS - MOTOR_MINIMUM_POS)
 
 void setupPWMAlternateFunction() {
@@ -24,11 +25,11 @@ void setupPWMAlternateFunction() {
     RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
     
     // Set PA0 to be alternate function
-    GPIOA->MODER &= ~GPIO_MODER_MODER0;        // Clear moder register mode0[1:0]
-    GPIOA->MODER |= GPIO_MODER_MODER0_1;    // Set alternate function mode 10
+    //GPIOA->MODER &= ~GPIO_MODER_MODER0;        // Clear moder register mode0[1:0]
+    //GPIOA->MODER |= GPIO_MODER_MODER0_1;    // Set alternate function mode 10
     
     // Set Alternate function lower register to AF2 so that A0 is set connected to TIM5_CH1
-    GPIOA->AFR[0] = 0x2;
+    //GPIOA->AFR[0] = 0x2;
         
     // Set PA1 to be alternate function
     GPIOA->MODER &= ~GPIO_MODER_MODER1;        // Clear moder register mode0[1:0]
@@ -57,28 +58,30 @@ void pwmInit() {
     // Set a duty cycle of 2 ms
     
     // Set PWM mode 1, channel 1 is active as long as TIMx->CNT < TIMx->CCR1
-    TIM5->CCMR1 |= 0x60;
+    //TIM5->CCMR1 |= 0x60;
     // Set PWM mode 1, channel 1 is active as long as TIMx->CNT < TIMx->CCR1
     TIM5->CCMR1 |= 0x6000;
     // Enable Output compare on channel 1
-    TIM5->CCER |= 1;
+    //TIM5->CCER |= 1;
     TIM5->CCER |= 0x10;
     TIM5->CR1 |= TIM_CR1_CEN;
 }
 
 // Returns a PWM duty cycle value to command corresponding to a normalized
 // float between 0 and 1
-uint16_t setNormalizedPWMDuty(float norm_pos) {
-    return (uint16_t)(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
+void setNormalizedPWMDuty(float norm_pos) {
+	  uint16_t pwmVal;
+    pwmVal = (uint16_t)(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
+	  setPWMDuty(pwmVal);
 }
 
-void setPWMDuty( unsigned int channel_num, uint16_t duty_cycle) {
+void setPWMDuty( uint16_t duty_cycle) {
     // Write new Duty cycle value for channel 1
-    if (channel_num == 0) {
-        TIM5->CCR1 = duty_cycle;
-    }
+//    if (channel_num == 0) {
+//        TIM5->CCR1 = duty_cycle;
+//    }
     // Write new duty cycle value for channel 2
-    else {
+//    else {
         TIM5->CCR2 = duty_cycle;
-    }
+//    }
 }

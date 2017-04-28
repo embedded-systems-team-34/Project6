@@ -19,6 +19,7 @@
 #include <math.h>
 
 #include "timer2.h"
+#include "pwm.h"
 
 #define debug (1)
 
@@ -39,6 +40,8 @@ int main(void){
     
     // Configure Timer 2 Channel 1 For Input Capture
     timer2PWMInputModeInit();
+	  setupPWMAlternateFunction();
+	  pwmInit();
      
     
     // Enable the interrupt handler

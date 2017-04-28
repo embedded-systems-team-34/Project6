@@ -11,6 +11,7 @@
 ******************************************************************************/
 
 #include "timer2.h"
+#include "pwm.h"
 
 // Maximum PWM On Time In us
 #define MAX_PWMTIME (1000)
@@ -28,7 +29,8 @@ void TIM2_IRQHandler(void) {
         // Normalize and kick motor PWM logic here
         // TIM2->CCR2 will contain pulse duration in us here!!!
 			  pwm_duty_time = TIM2->CCR2;
-			  normalizePWMTime(pwm_duty_time);
+			  // Update the PWM module with the latest pwm duty time
+			  setNormalizedPWMDuty(normalizePWMTime(pwm_duty_time));
     }
 }
 
