@@ -29,6 +29,9 @@ void TIM2_IRQHandler(void) {
         // Normalize and kick motor PWM logic here
         // TIM2->CCR2 will contain pulse duration in us here!!!
 			  pwm_duty_time = TIM2->CCR2;
+			  // This was added to account for the 25 ms offset added on the QNX side
+			  // This was necessary as PA0 has approximately a 25 ms rise time due to the capacitance on the input of all pins on PortA
+			  pwm_duty_time -= 25;
 			  // Update the PWM module with the latest pwm duty time
 			  setNormalizedPWMDuty(normalizePWMTime(pwm_duty_time));
     }

@@ -14,16 +14,18 @@
 #include "stm32l476xx.h"
 #include "pwm.h"
 
-#define MOTOR_MINIMUM_POS (390)//(490)
-#define MOTOR_MAXIMUM_POS (1969)//(1969)
+#define MOTOR_MINIMUM_POS (400)
+#define MOTOR_MAXIMUM_POS (1800)
 #define MOTOR_NUM_STEPS (MOTOR_MAXIMUM_POS - MOTOR_MINIMUM_POS)
 
 void setupPWMAlternateFunction() {
     // Initialize PWM for channels 1 and two
     // Configure PA0 for alternate function
     // Enable clk to PortA
-    RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
+    //RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
     
+	  RCC->AHB2ENR |= RCC_AHB2ENR_GPIOAEN;
+	
     // Set PA0 to be alternate function
     //GPIOA->MODER &= ~GPIO_MODER_MODER0;        // Clear moder register mode0[1:0]
     //GPIOA->MODER |= GPIO_MODER_MODER0_1;    // Set alternate function mode 10

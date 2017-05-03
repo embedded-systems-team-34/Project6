@@ -30,6 +30,10 @@
 
 int main(void){
    
+	 // PA1 motor PWM output
+	 // PA0 QNX PWM input signal
+	
+	
     System_Clock_Init();
 
 #if debug
@@ -41,8 +45,7 @@ int main(void){
     // Configure Timer 2 Channel 1 For Input Capture
     timer2PWMInputModeInit();
 	  setupPWMAlternateFunction();
-	  pwmInit();
-     
+	  pwmInit();     
     
     // Enable the interrupt handler
     NVIC_EnableIRQ(TIM2_IRQn);  
