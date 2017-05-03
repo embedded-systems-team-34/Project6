@@ -19,6 +19,8 @@
 #define NS_PER_US (1000)
 #define FLOAT_MAX_PWM_PULSE_US (1000.0)
 #define MIN_PWM_PULSE_NS (1000)
+// This offset is necessary to account for the capacitance on PA0 which takes approximately 25 ms to rise
+#define PULSE_OFFSET (25000)
 #define PWM_PIN (1)
 
 uintptr_t port_a;
@@ -116,6 +118,7 @@ int main(int argc, char *argv[]) {
 
 		// Start the PWM signal
 		timer_spec.tv_sec = 0;
+		pwmPulseLength += PULSE_OFFSET;
 		timer_spec.tv_nsec = pwmPulseLength;
 		out8(port_a, PWM_PIN);
 		// spin here to achieve high precision
