@@ -60,11 +60,11 @@ void pwmInit() {
 // Returns a PWM duty cycle value to command corresponding to a normalized
 // float between 0 and 1
 void setNormalizedPWMDuty(float norm_pos) {
-	uint16_t pwmVal;
+	uint16_t pwm_val;
     // Determine the corresponding command for a given normalized  position command
-    pwmVal = (uint16_t)(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
+    pwm_val = (uint16_t)(norm_pos * MOTOR_NUM_STEPS) + MOTOR_MINIMUM_POS;
     // Update the PWM command with the new duty cycle
-	setPWMDuty(pwmVal);
+	setPWMDuty(pwm_val);
 }
 
 // Write the Duty Cycle for TIM5 CH2

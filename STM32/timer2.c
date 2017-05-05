@@ -13,9 +13,10 @@
 #include "timer2.h"
 #include "pwm.h"
 
-// Maximum PWM On Time In us
+// Maximum  and Minimum PWM On Time In us
 #define MAX_PWMTIME (1000)
 #define MIN_PWMTIME (0)
+// PWM Offset for the pin's 25us rise time
 #define PWM_OFFSET (25)
 
 void TIM2_IRQHandler(void) {
@@ -28,8 +29,8 @@ void TIM2_IRQHandler(void) {
         // and input fires on the falling edge
         // Read duty cycle of the received pulse in us
 		pwm_duty_time = TIM2->CCR2;
-		// Subtract of 25 us to account for the 25 us offset which is necessary as PA0 has approximately 
-        // a 25 ms rise time due to the capacitance on the input of all pins on PortA
+		// Subtract of 25 us to account for the 25 us offset added on QNX which is necessary as PA0 has approximately 
+        // a 25 us rise time due to the capacitance on the input of all pins on PortA
         pwm_duty_time -= PWM_OFFSET;
         // Normalize the received PWM signal and update the PWM module with the latest pwm duty time
 		setNormalizedPWMDuty(normalizePWMTime(pwm_duty_time));
