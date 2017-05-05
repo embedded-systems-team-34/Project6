@@ -1,7 +1,8 @@
 /******************************************************************************
 * FILENAME : main.c          
 *
-* DESCRIPTION : 
+* DESCRIPTION : STM32 code to decode a pulse from the QNX box and translate this
+*               pulse into a motor position command.
 *     
 * AUTHOR: 
 *     Donald MacIntyre - djm4912@rit.edu
@@ -21,18 +22,12 @@
 #include "timer2.h"
 #include "pwm.h"
 
-#define debug (1)
-
-
-/******************************************************************************
-* GLOBAL VARIABLES
-******************************************************************************/
+#define debug (0)
 
 int main(void){
    
-	 // PA1 motor PWM output
-	 // PA0 QNX PWM input signal
-	
+    // PA1 motor PWM output
+    // PA0 QNX PWM input signal
 	
     System_Clock_Init();
 
@@ -42,12 +37,13 @@ int main(void){
 
     UART2_Init();
     
-    // Configure Timer 2 Channel 1 For Input Capture
+    // Configure Timer 2 Channel 1 For Input Capture to measure QNX pulse length
     timer2PWMInputModeInit();
-	  setupPWMAlternateFunction();
-	  pwmInit();     
+    // Setup Motor PWM 
+	setupPWMAlternateFunction();
+	pwmInit();     
     
-    // Enable the interrupt handler
+    // Enable the interrupt handler to measure TIM2 QNX pulse duty cycle
     NVIC_EnableIRQ(TIM2_IRQn);  
 
     while(1);

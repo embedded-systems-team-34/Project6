@@ -16,28 +16,29 @@
 // Maximum PWM On Time In us
 #define MAX_PWMTIME (1000)
 #define MIN_PWMTIME (0)
+#define PWM_OFFSET (25)
 
 void TIM2_IRQHandler(void) {
     uint16_t which_interrupt = TIM2->SR;
-	  uint32_t pwm_duty_time;
+	uint32_t pwm_duty_time;
     
-    // Input channel 2 capture interrupt
+    // Input channel 2 capture interrupt, measure the duty cycle 
     if ((which_interrupt & TIM_SR_CC2IF) == TIM_SR_CC2IF) {
-        // Read the latched time from the capture event
-        // this also clears the capture flag in TIM2->SR
-        //current_rising_edge_count = TIM2->CCR2;
-        // Normalize and kick motor PWM logic here
-        // TIM2->CCR2 will contain pulse duration in us here!!!
-			  pwm_duty_time = TIM2->CCR2;
-			  // This was added to account for the 25 ms offset added on the QNX side
-			  // This was necessary as PA0 has approximately a 25 ms rise time due to the capacitance on the input of all pins on PortA
-			  pwm_duty_time -= 25;
-			  // Update the PWM module with the latest pwm duty time
-			  setNormalizedPWMDuty(normalizePWMTime(pwm_duty_time));
+        // TIM2->CCR2 will contain pulse duration in us since CCR2 launched on rising edge
+        // and input fires on the falling edge
+        // Read duty cycle of the received pulse in us
+		pwm_duty_time = TIM2->CCR2;
+		// Subtract of 25 us to account for the 25 us offset which is necessary as PA0 has approximately 
+        // a 25 ms rise time due to the capacitance on the input of all pins on PortA
+        pwm_duty_time -= PWM_OFFSET;
+        // Normalize the received PWM signal and update the PWM module with the latest pwm duty time
+		setNormalizedPWMDuty(normalizePWMTime(pwm_duty_time));
     }
 }
 
 // Return a value between 0 and 1 indicating the duration of the PWM on time
+// 0.0 corresponds to a MIN_PWMTIME of 0 us
+// 1.0 corresponds to a MAX_PWMTIME of 1000 us
 float normalizePWMTime(uint32_t duty_time) {
     if (duty_time >= MAX_PWMTIME) {
         return 1.0;
@@ -46,7 +47,7 @@ float normalizePWMTime(uint32_t duty_time) {
     }
 }
 
-// Configure for PWM Input Mode
+// Configure for PWM Input Mode to measure duty cycle
 // See 27.3.6 - PWM Input Mode of the reference manual
 void timer2PWMInputModeInit() {
     
@@ -109,7 +110,6 @@ void timer2PWMInputModeInit() {
     
     // Enable interrupts for input capture compare 2
     TIM2->DIER |= TIM_DIER_CC2IE;
-		TIM2->CR1 |= TIM_CR1_CEN;
+	TIM2->CR1 |= TIM_CR1_CEN;
     
 }
-
